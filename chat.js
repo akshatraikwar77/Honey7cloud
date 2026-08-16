@@ -3,15 +3,13 @@
    Single input, auto-detected intent: image / video-frame / code / text.
    ========================================================================== */
 
-// Honey Cloud talks to Gemini through a local key-rotator proxy instead of
-// calling Google directly, so the real API key never ships to the browser.
-// Run the proxy from https://github.com/jwadow/gemini-api-key-rotator-proxy-server
-// (it holds your actual Gemini key(s) server-side) and point PROXY_BASE_URL at it.
-// For local dev this is usually http://127.0.0.1:8000; in production, host the
-// proxy somewhere and use its https URL here instead.
-const PROXY_BASE_URL = "http://127.0.0.1:8000";
-const GEMINI_MODEL = "gemini-2.0-flash-exp";
-const GEMINI_ENDPOINT = `${PROXY_BASE_URL}/v1beta/models/${GEMINI_MODEL}:generateContent`;
+// PASTE your OpenAI (ChatGPT) API key below. Get one at https://platform.openai.com/api-keys
+// This key ships inside client-side JS, so anyone viewing your site's source can see it —
+// set a spending limit on it in the OpenAI dashboard. Swap to a server-side proxy later
+// if this becomes a public product.
+const OPENAI_API_KEY = "PASTE_YOUR_OPENAI_API_KEY_HERE";
+const OPENAI_MODEL = "gpt-4o-mini";
+const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
 let hcSearchActive = false;
 let hcHistory = [];          // [{id, title, messages: [{role, text, imageUrl}]}]
@@ -108,27 +106,40 @@ async function sendMessage() {
   renderActiveChat();
 }
 
-/* ---- Gemini text call, routed through the local key-rotator proxy ---- */
+/* ---- OpenAI (ChatGPT) text call ---- */
 async function callGemini(prompt, wantCode) {
+  if (!OPENAI_API_KEY || OPENAI_API_KEY.startsWith('PASTE_')) {
+    return 'Add your OpenAI API key in chat.js (OPENAI_API_KEY) to enable live responses. This is a placeholder reply.';
+  }
   const systemNote = wantCode
     ? 'Respond with a single fenced code block containing complete, runnable code for the request.'
     : 'Respond conversationally and concisely.';
 
   let res;
   try {
-    res = await fetch(GEMINI_ENDPOINT, {
+    res = await fetch(OPENAI_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: `${systemNote}\n\n${prompt}` }] }]
+        model: OPENAI_MODEL,
+        messages: [
+          { role: 'system', content: systemNote },
+          { role: 'user', content: prompt }
+        ]
       })
     });
   } catch (networkErr) {
-    throw new Error(`Can't reach the proxy at ${PROXY_BASE_URL}. Is gemini-api-key-rotator-proxy-server running?`);
+    throw new Error('Could not reach the OpenAI API — check your internet connection.');
   }
-  if (!res.ok) throw new Error(`Proxy/Gemini error ${res.status}`);
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => null);
+    throw new Error(errBody?.error?.message || `OpenAI API error ${res.status}`);
+  }
   const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response returned.';
+  return data?.choices?.[0]?.message?.content || 'No response returned.';
 }
 
 /* ---- Free image generation via Pollinations.ai ---- */
