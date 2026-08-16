@@ -1,0 +1,151 @@
+/* ==========================================================================
+   Honey Cloud — Editor
+   ========================================================================== */
+
+.editor-shell {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+}
+
+.editor-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-glass);
+  background: var(--bg-1);
+}
+
+.editor-body {
+  display: grid;
+  grid-template-columns: 76px 1fr 260px;
+  min-height: 0;
+}
+
+/* ---- Tool rail ---- */
+.tool-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  background: var(--bg-1);
+  border-right: 1px solid var(--border-glass);
+  overflow-y: auto;
+}
+.tool-btn {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  display: grid; place-items: center;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all 0.18s var(--ease-out);
+  position: relative;
+}
+.tool-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.tool-btn.is-active {
+  background: var(--accent-gradient-soft);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: var(--accent-cyan);
+}
+.tool-btn span {
+  position: absolute; left: 58px;
+  font-size: 11.5px; background: var(--bg-2);
+  border: 1px solid var(--border-glass);
+  padding: 4px 8px; border-radius: 6px;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity 0.15s;
+}
+.tool-btn:hover span { opacity: 1; }
+
+/* ---- Canvas stage ---- */
+.canvas-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(45deg, #0c0c0e 25%, transparent 25%),
+    linear-gradient(-45deg, #0c0c0e 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #0c0c0e 75%),
+    linear-gradient(-45deg, transparent 75%, #0c0c0e 75%);
+  background-size: 22px 22px;
+  background-position: 0 0, 0 11px, 11px -11px, -11px 0px;
+  background-color: #050506;
+  padding: 32px;
+  overflow: auto;
+  position: relative;
+}
+
+#editorCanvas {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  touch-action: none;
+}
+
+.canvas-zoom {
+  position: absolute;
+  bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(18,18,20,0.85);
+  border: 1px solid var(--border-glass);
+  font-size: 12.5px;
+  backdrop-filter: blur(10px);
+}
+
+/* ---- Right panel ---- */
+.editor-panel {
+  background: var(--bg-1);
+  border-left: 1px solid var(--border-glass);
+  padding: 20px 18px;
+  overflow-y: auto;
+}
+.panel-group { margin-bottom: 24px; }
+.panel-group h4 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-tertiary); margin-bottom: 12px; font-weight: 650;
+}
+.swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--border-glass);
+  cursor: pointer; transition: transform 0.15s var(--ease-spring);
+}
+.swatch:hover { transform: scale(1.12); }
+.swatch.is-active { border-color: var(--accent-cyan); }
+
+.slider-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.slider-row label { font-size: 12.5px; color: var(--text-secondary); display: flex; justify-content: space-between; }
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%; height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.1);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--accent-gradient);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+}
+
+.text-input-row {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  font-size: 13.5px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .editor-body { grid-template-columns: 60px 1fr; }
+  .editor-panel { display: none; }
+}

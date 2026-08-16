@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor — Honey Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="editor.css">
+<link rel="stylesheet" href="animations.css">
+</head>
+<body>
+
+<div class="editor-shell">
+  <div class="editor-topbar">
+    <div class="navbar__brand" style="font-size:15px;">
+      <a href="dashboard.html" class="btn-icon" title="Back to chat">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </a>
+      Image editor
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost btn-sm" onclick="resetCanvas()">Reset</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadCanvas()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-body">
+    <div class="tool-rail">
+      <button class="tool-btn is-active" data-tool="select" onclick="setTool('select')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+        <span>Select / move</span>
+      </button>
+      <button class="tool-btn" data-tool="crop" onclick="setTool('crop')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>
+        <span>Crop</span>
+      </button>
+      <button class="tool-btn" data-tool="text" onclick="setTool('text')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <span>Add text</span>
+      </button>
+      <button class="tool-btn" data-tool="shape" onclick="setTool('shape')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>
+        <span>Shapes</span>
+      </button>
+      <button class="tool-btn" data-tool="color" onclick="setTool('color')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.4-4.5-8-10-8z"/></svg>
+        <span>Adjust color</span>
+      </button>
+    </div>
+
+    <div class="canvas-stage">
+      <canvas id="editorCanvas" width="600" height="450"></canvas>
+      <div class="canvas-zoom">
+        <button class="btn-icon" style="width:26px;height:26px;" onclick="zoomCanvas(-0.1)">−</button>
+        <span id="zoomLabel">100%</span>
+        <button class="btn-icon" style="width:26px;height:26px;" onclick="zoomCanvas(0.1)">+</button>
+      </div>
+    </div>
+
+    <aside class="editor-panel">
+      <div class="panel-group" id="textPanel" style="display:none;">
+        <h4>Text</h4>
+        <input class="text-input-row" id="textInputValue" placeholder="Type your text…" oninput="renderCanvas()">
+        <div class="slider-row"><label>Size <span id="fontSizeVal">36px</span></label>
+          <input type="range" id="fontSize" min="12" max="120" value="36" oninput="renderCanvas()"></div>
+      </div>
+
+      <div class="panel-group" id="shapePanel" style="display:none;">
+        <h4>Shape</h4>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="addShape('rect')">Rectangle</button>
+          <button class="btn btn-ghost btn-sm" onclick="addShape('circle')">Circle</button>
+        </div>
+      </div>
+
+      <div class="panel-group" id="colorPanelGroup">
+        <h4>Fill / accent color</h4>
+        <div class="swatch-row">
+          <div class="swatch is-active" style="background:#6366F1" onclick="setColor('#6366F1', this)"></div>
+          <div class="swatch" style="background:#8B5CF6" onclick="setColor('#8B5CF6', this)"></div>
+          <div class="swatch" style="background:#22D3EE" onclick="setColor('#22D3EE', this)"></div>
+          <div class="swatch" style="background:#F4F4F6" onclick="setColor('#F4F4F6', this)"></div>
+          <div class="swatch" style="background:#09090B" onclick="setColor('#09090B', this)"></div>
+        </div>
+      </div>
+
+      <div class="panel-group">
+        <h4>Adjustments</h4>
+        <div class="slider-row"><label>Brightness <span id="brightVal">100%</span></label>
+          <input type="range" id="brightness" min="20" max="200" value="100" oninput="renderCanvas()"></div>
+        <div class="slider-row"><label>Contrast <span id="contrastVal">100%</span></label>
+          <input type="range" id="contrast" min="20" max="200" value="100" oninput="renderCanvas()"></div>
+        <div class="slider-row"><label>Saturation <span id="saturateVal">100%</span></label>
+          <input type="range" id="saturate" min="0" max="200" value="100" oninput="renderCanvas()"></div>
+      </div>
+
+      <div class="panel-group">
+        <h4>Crop</h4>
+        <div class="slider-row"><label>Inset <span id="cropVal">0%</span></label>
+          <input type="range" id="cropInset" min="0" max="40" value="0" oninput="renderCanvas()"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="main.js"></script>
+<script src="auth.js"></script>
+<script>
+  const canvas = document.getElementById('editorCanvas');
+  const ctx = canvas.getContext('2d');
+  let activeTool = 'select';
+  let activeColor = '#6366F1';
+  let zoom = 1;
+  let shapes = [];        // {type, x, y, w, h, color}
+  let textLayer = { value: '', size: 36 };
+
+  function loadBaseImage() {
+    // If the dashboard passed a generated image via sessionStorage, use it; else a placeholder gradient.
+    const src = sessionStorage.getItem('hc_editor_image');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { window.baseImage = img; renderCanvas(); };
+    img.onerror = () => { window.baseImage = null; renderCanvas(); };
+    img.src = src || '';
+    if (!src) { window.baseImage = null; renderCanvas(); }
+  }
+
+  function setTool(tool) {
+    activeTool = tool;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('is-active', b.dataset.tool === tool));
+    document.getElementById('textPanel').style.display = tool === 'text' ? 'block' : 'none';
+    document.getElementById('shapePanel').style.display = tool === 'shape' ? 'block' : 'none';
+  }
+
+  function setColor(color, el) {
+    activeColor = color;
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('is-active'));
+    el.classList.add('is-active');
+    renderCanvas();
+  }
+
+  function addShape(type) {
+    shapes.push({ type, x: 220, y: 160, w: 120, h: 90, color: activeColor });
+    renderCanvas();
+  }
+
+  function zoomCanvas(delta) {
+    zoom = Math.min(2, Math.max(0.4, zoom + delta));
+    document.getElementById('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+    canvas.style.transform = `scale(${zoom})`;
+  }
+
+  function resetCanvas() {
+    shapes = [];
+    textLayer = { value: '', size: 36 };
+    document.getElementById('textInputValue').value = '';
+    ['brightness', 'contrast', 'saturate', 'cropInset'].forEach(id => document.getElementById(id).value = id === 'cropInset' ? 0 : 100);
+    renderCanvas();
+  }
+
+  function renderCanvas() {
+    const bright = document.getElementById('brightness').value;
+    const contrast = document.getElementById('contrast').value;
+    const sat = document.getElementById('saturate').value;
+    const cropPct = document.getElementById('cropInset').value;
+    document.getElementById('brightVal').textContent = bright + '%';
+    document.getElementById('contrastVal').textContent = contrast + '%';
+    document.getElementById('saturateVal').textContent = sat + '%';
+    document.getElementById('cropVal').textContent = cropPct + '%';
+
+    textLayer.value = document.getElementById('textInputValue').value;
+    textLayer.size = parseInt(document.getElementById('fontSize').value, 10);
+    document.getElementById('fontSizeVal').textContent = textLayer.size + 'px';
+
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
+
+    if (window.baseImage) {
+      ctx.drawImage(window.baseImage, 0, 0, canvas.width, canvas.height);
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, '#6366F1');
+      grad.addColorStop(0.55, '#8B5CF6');
+      grad.addColorStop(1, '#22D3EE');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    ctx.filter = 'none';
+
+    shapes.forEach(s => {
+      ctx.fillStyle = s.color;
+      if (s.type === 'rect') ctx.fillRect(s.x, s.y, s.w, s.h);
+      if (s.type === 'circle') {
+        ctx.beginPath();
+        ctx.arc(s.x + s.w / 2, s.y + s.h / 2, s.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    if (textLayer.value) {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${textLayer.size}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 8;
+      ctx.fillText(textLayer.value, canvas.width / 2, canvas.height / 2);
+    }
+
+    // Crop inset overlay (visual guide, applied on export)
+    const inset = (cropPct / 100) * Math.min(canvas.width, canvas.height) * 0.5;
+    if (inset > 0) {
+      ctx.strokeStyle = 'rgba(34,211,238,0.9)';
+      ctx.setLineDash([6, 5]);
+      ctx.strokeRect(inset, inset, canvas.width - inset * 2, canvas.height - inset * 2);
+      ctx.setLineDash([]);
+    }
+    ctx.restore();
+  }
+
+  function downloadCanvas() {
+    const link = document.createElement('a');
+    link.download = 'honeycloud-export.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Image downloaded', 'success');
+  }
+
+  loadBaseImage();
+</script>
+</body>
+</html>
+

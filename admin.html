@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Honey Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="animations.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="dashboard.html" class="navbar__brand">
+    <svg width="22" height="22" viewBox="0 0 48 48">
+      <defs><linearGradient id="g4" x1="0" y1="0" x2="48" y2="48">
+        <stop offset="0%" stop-color="#6366F1"/><stop offset="55%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#22D3EE"/>
+      </linearGradient></defs>
+      <path d="M13 30C8 30 4 26.2 4 21.5C4 17.1 7.4 13.5 11.8 13.1C13.2 8.5 17.5 5 22.7 5C28.4 5 33.1 9 34.2 14.3C39.2 14.9 43 19 43 24C43 29 39 33 34 33H13Z" fill="url(#g4)"/>
+    </svg>
+    Honey Cloud <span class="badge" style="margin-left:8px;">Admin</span>
+  </a>
+  <a href="dashboard.html" class="btn btn-ghost btn-sm">Back to workspace</a>
+</nav>
+
+<main class="container" style="padding:48px 24px 80px; max-width:920px;">
+
+  <div id="lockScreen" class="glass-card" style="max-width:400px; margin:60px auto; padding:32px;">
+    <h2 style="margin-bottom:8px;">Admin access</h2>
+    <p style="margin-bottom:20px; font-size:14px;">Enter the admin passphrase to continue.</p>
+    <div class="field">
+      <input id="adminPass" type="password" placeholder="Passphrase">
+      <div class="field-error" id="adminError"></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="unlockAdmin()">Unlock</button>
+    <p style="font-size:11.5px; color:var(--text-tertiary); margin-top:14px;">
+      Default passphrase is <code>honeyadmin</code> — change ADMIN_PASSPHRASE in admin.js before deploying.
+    </p>
+  </div>
+
+  <div id="adminContent" style="display:none;">
+    <h1 style="font-size:28px; margin-bottom:6px;">Admin dashboard</h1>
+    <p style="margin-bottom:32px;">Manage registered accounts and trial windows.</p>
+
+    <div class="stat-grid">
+      <div class="glass-card stat-card">
+        <p class="stat-label">Registered users</p>
+        <p class="stat-value" id="statUserCount">0</p>
+      </div>
+      <div class="glass-card stat-card">
+        <p class="stat-label">Active trials</p>
+        <p class="stat-value" id="statActiveCount">0</p>
+      </div>
+      <div class="glass-card stat-card">
+        <p class="stat-label">Expired trials</p>
+        <p class="stat-value" id="statExpiredCount">0</p>
+      </div>
+    </div>
+
+    <div class="glass-card" style="margin-top:28px; padding:0; overflow:hidden;">
+      <table class="user-table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Signed up</th><th>Trial status</th><th></th></tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+      <p id="emptyUsers" style="padding:28px; text-align:center; color:var(--text-tertiary); display:none;">
+        No accounts yet. New sign-ups from login.html will appear here.
+      </p>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<style>
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.stat-card { padding: 22px 24px; }
+.stat-label { font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 8px; }
+.stat-value { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+.user-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.user-table th {
+  text-align: left; padding: 14px 20px; font-size: 11.5px; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-tertiary); border-bottom: 1px solid var(--border-glass);
+}
+.user-table td { padding: 14px 20px; border-bottom: 1px solid var(--border-glass); color: var(--text-secondary); }
+.user-table tr:last-child td { border-bottom: none; }
+.status-active { color: #86efac; }
+.status-expired { color: #fb7185; }
+@media (max-width: 700px) { .stat-grid { grid-template-columns: 1fr; } }
+</style>
+
+<script src="main.js"></script>
+<script src="auth.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — Honey Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="components.css">
+<link rel="stylesheet" href="animations.css">
+</head>
+<body>
+
+<a href="index.html" class="navbar__brand" style="position:absolute; top:24px; left:24px; z-index:2;">
+  <svg class="logo-mark" width="26" height="26" viewBox="0 0 48 48">
+    <defs><linearGradient id="g2" x1="0" y1="0" x2="48" y2="48">
+      <stop offset="0%" stop-color="#6366F1"/><stop offset="55%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient></defs>
+    <path d="M13 30C8 30 4 26.2 4 21.5C4 17.1 7.4 13.5 11.8 13.1C13.2 8.5 17.5 5 22.7 5C28.4 5 33.1 9 34.2 14.3C39.2 14.9 43 19 43 24C43 29 39 33 34 33H13Z" fill="url(#g2)"/>
+  </svg>
+  Honey Cloud
+</a>
+
+<div class="auth-shell">
+  <div class="glass-card auth-card reveal is-visible">
+    <div class="auth-tabs">
+      <button class="auth-tab is-active" id="tabSignin" onclick="setAuthTab('signin')">Sign in</button>
+      <button class="auth-tab" id="tabSignup" onclick="setAuthTab('signup')">Create account</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <form id="signinForm" onsubmit="return false;">
+      <div class="field">
+        <label for="siEmail">Email</label>
+        <input id="siEmail" type="email" placeholder="you@studio.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="siPass">Password</label>
+        <input id="siPass" type="password" placeholder="••••••••" autocomplete="current-password" required>
+        <div class="field-error" id="siError"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="handleSignin()">Sign in</button>
+    </form>
+
+    <!-- SIGN UP -->
+    <form id="signupForm" style="display:none;" onsubmit="return false;">
+      <div class="field">
+        <label for="suName">Name</label>
+        <input id="suName" type="text" placeholder="Ada Lovelace" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="suEmail">Email</label>
+        <input id="suEmail" type="email" placeholder="you@studio.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="suPass">Password</label>
+        <input id="suPass" type="password" placeholder="At least 8 characters" autocomplete="new-password" required>
+        <div class="field-error" id="suError"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="handleSignup()">Create account &amp; start 60-day trial</button>
+    </form>
+
+    <p style="text-align:center; font-size:12.5px; margin-top:20px; color:var(--text-tertiary);">
+      By continuing, an unlimited 60-day trial starts on your account automatically.
+    </p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="main.js"></script>
+<script src="auth.js"></script>
+<script>
+  function setAuthTab(tab) {
+    const isSignin = tab === 'signin';
+    document.getElementById('tabSignin').classList.toggle('is-active', isSignin);
+    document.getElementById('tabSignup').classList.toggle('is-active', !isSignin);
+    document.getElementById('signinForm').style.display = isSignin ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = isSignin ? 'none' : 'block';
+  }
+</script>
+</body>
+</html>
